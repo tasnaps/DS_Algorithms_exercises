@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Downloads">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/tra_2017.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/Downloads/tra_2017.jar!/javadoc" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
