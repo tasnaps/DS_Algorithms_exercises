@@ -8,7 +8,10 @@ public class TRAII_22s_X3_pohja implements TRAII_22s_X3 {
 
     /**
      * ITSEARVIOINTI TÃ„HÃ„N:
-     *
+     * Mielestäni testit mittautuvat oikein kun käytössä on Arraylist, TreeSet contains pitäis olla logaritminen, mutta tulokset pysyvät  samalla alueella alkiomäärää kasvatettaessa
+     * HashSet contains toiminto on vakioaikainen ja se näkyy myös mittauksissa.
+     * Yritin parantaa edellisten viikkojen mittaustekniikkaa. Otan aina alkion listan keskeltä testiin, ja pyöräytän mittauksen useamman for loopin läpi, jotta tulisi luotettavia tuloksia...
+     * Toivottavasti ratkaisu näyttää loogiselta.
      *
      *
      */
@@ -26,52 +29,67 @@ public class TRAII_22s_X3_pohja implements TRAII_22s_X3 {
      */
     @Override
     public void containsNopeus(Collection<Double> C, SortedMap<Integer, Long> tulokset, boolean loytyy) {
-        //Etsittävä alkio pitää valita joko C löytyväksi jos loytyy, muuten ei loydy
         double searchable = 0;
         long startTime;
         long taskTime = 0;
         long parasTulos = 150000;
-        // TODO ehkÃ¤ tÃ¤hÃ¤n
+        Long[] testit = new Long[20];
+        long palautus = 0;
 
-        // eri alkiomÃ¤Ã¤rÃ¤t joilla mittaus pitÃ¤Ã¤ tehdÃ¤:
         for (int alkioMaara : tulokset.keySet()) {
             C.clear();//tyhjennetään aikaisemmat tulokset
-            C.addAll(satunnaisia(alkioMaara));//lisätään satunnaisia alkioita kokoelmaan
-
-
+            ArrayList<Double>lista =new ArrayList<>(satunnaisia(alkioMaara));
+            Object haettava = lista.get((lista.size()/2)+1); //valitaan keskimmäinen alkio
+            C.addAll(lista);
             if(!loytyy){
-                searchable = alkioMaara +1;
-                for(int i = 0; i<10; i++){
-                    startTime = System.nanoTime();
-                    C.contains(searchable);
-                    taskTime = System.nanoTime() - startTime;
-                    if((taskTime<parasTulos)&&taskTime!=0){
-                        parasTulos = taskTime;
+                searchable = alkioMaara +1; //satunnaisia() metodissa otetaan lukuja joissa max on alkiomäärä. yksi isompi siis ei löydy listasta
+                for(int i = 0; i<20; i++){
+                    parasTulos = Integer.MAX_VALUE; //Tätä arvoa aina pienennetään sisemmässä loopissa
+                    for(int j = 0; j<20; j++){
+                        startTime = System.nanoTime(); //Mittauksen aloitus
+                        for(int x = 0; x<5; x++){ //Mitataan contains 5 kertaa
+                            C.contains(searchable);
+                        }
+                        taskTime = (System.nanoTime() - startTime)/5; //lasketaan keskiarvo sisemmälle loopille
+                        if((taskTime<parasTulos)&&taskTime!=0){ //Mikäli keskiarvo pienempi kuin aikaisemmat arvot, päivitetään tulosta.
+                            parasTulos = taskTime;
+                        }
                     }
+                    testit[i] = parasTulos; //lisätään kunkin kierroksen pienimmät tulokset taulukkoon
                 }
-
-            }
-
+                long summa = 0;
+                for(long testi : testit){ //taas keskiarvo
+                    summa += testi;
+                }
+                palautus = summa/testit.length;
+            }// loytyy haara on peilikuva yllaolevasta koodista, ainoastaan haettava on olemassa
             if(loytyy){
-                for(int i=0; i<10; i++){//kymmenen testiä
-                    //valitse alkio joka löytyy kokoelmasta.
-                    Iterator iterator = C.iterator();
-                    searchable = (double)iterator.next();
-                    startTime = System.nanoTime();
-                    C.contains(searchable);
-                    taskTime = System.nanoTime() - startTime;
-                    if((taskTime<parasTulos)&&taskTime!=0){
-                        parasTulos = taskTime;
+                for(int i=0; i<20; i++){
+                    parasTulos = Integer.MAX_VALUE;
+                    for(int j=0; j<20; j++){
+                        startTime = System.nanoTime();
+                        for(int x=0; x<5; x++){
+                            C.contains(haettava);
+                        }
+                        taskTime = (System.nanoTime() - startTime)/5;
+                        if((taskTime<parasTulos)&&taskTime!=0){
+                            parasTulos = taskTime;
+                        }
                     }
+                    testit[i] = parasTulos;
+                }
+                long summa = 0;
+                for(long testi : testit){
+                    summa += testi;
                 }
 
+                palautus = summa/testit.length;
+
             }
-            tulokset.put(alkioMaara, parasTulos);
+
+            tulokset.put(alkioMaara, palautus);
 
         }
-
-        // TODO ehkÃ¤ tÃ¤nnekin
-
     }
     private ArrayList<Double> satunnaisia(int n) {
         ArrayList<Double> A = new ArrayList<>(n);
