@@ -41,6 +41,13 @@ public class TRAII_22s_X3_pohja implements TRAII_22s_X3 {
             ArrayList<Double>lista =new ArrayList<>(satunnaisia(alkioMaara));
             Object haettava = lista.get((lista.size()/2)+1); //valitaan keskimmäinen alkio
             C.addAll(lista);
+            //ajetaan parit lämmittelyt
+            for(int l = 0; l<5; l++){
+                double joku = 1.4;
+                C.contains(joku);
+            }
+
+
             if(!loytyy){
                 searchable = alkioMaara +1; //satunnaisia() metodissa otetaan lukuja joissa max on alkiomäärä. yksi isompi siis ei löydy listasta
                 for(int i = 0; i<20; i++){

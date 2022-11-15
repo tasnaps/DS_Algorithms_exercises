@@ -1,12 +1,15 @@
-package kolmasViikko;
+package neljasViikko;
 
 import fi.uef.cs.tra.AbstractGraph;
 import fi.uef.cs.tra.DiGraph;
 import fi.uef.cs.tra.Vertex;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
-public class TRAII_22s_t11_12_pohja {
+public class TRAII_22s_t12_esim {
 
     public static void main(String[] args) {
 
@@ -31,11 +34,6 @@ public class TRAII_22s_t11_12_pohja {
         System.out.println("\nVerkko (numerot ovat solmujen nimiÃ¤, kirjaimet kaarten nimiÃ¤):");
         System.out.println(graph);
 
-        System.out.println("\nSeuraajat kullekin solmulle:");
-        for (Vertex v : graph.vertices()) {
-            System.out.println(v + " : " + seuraajienJoukko(graph, v));
-        }
-
 
         int polkuja = 15; // testaa max 15 polkua
         System.out.println("\nPolkuja:");
@@ -56,31 +54,6 @@ public class TRAII_22s_t11_12_pohja {
     } // main()
 
 
-    /**
-     * Solmun seuraajien joukko.
-     * Solmun seuraajien joukko ovat ne solmut joihin on polku annetusta solmusta.
-     * @param G tarkasteltava verkko (ei vÃ¤lttÃ¤mÃ¤ttÃ¤ tarvita)
-     * @param solmu aloitussolmu
-     * @return kaikki solmut joihin on polku solmusta solmu
-     */
-    static Set<Vertex> seuraajienJoukko(DiGraph G, Vertex solmu) {
-        varita(G, DiGraph.WHITE);
-        Set<Vertex> s = new HashSet<>();
-        return rekursio(s, solmu);
-    }
-
-    static Set<Vertex> rekursio(Set<Vertex> setti, Vertex solmu){
-        while(solmu.isAdjacent(solmu.neighbors().iterator().next())){
-            for(Vertex v : solmu.neighbors()){
-                setti.add(v);
-            }
-            solmu = solmu.neighbors().iterator().next();
-        }
-        return setti;
-    }
-
-
-
 
     /**
      * Joku polku solmusta alku solmuun loppu.
@@ -95,9 +68,76 @@ public class TRAII_22s_t11_12_pohja {
         GraphMaker.varita(G, DiGraph.WHITE);
         List<Vertex> tulos = new LinkedList<>();
 
-        // TODO
-
+        jokuPolku_r(alku, loppu, tulos);
         return tulos;
+    }
+
+    /**
+     * Rekursiivinen osa polun hakua, rakentaa polun solmusta v solmuun loppu.
+     * @param v solmu jossa ollaan menossa
+     * @param loppu tavoiteltava maalisolmu
+     * @param tulos lista johon polku kerÃ¤tÃ¤Ã¤n
+     * @return true jos maali lÃ¶ytyi tÃ¤stÃ¤ tai syvemmÃ¤ltÃ¤, muuten false
+     */
+    static boolean jokuPolku_r(Vertex v, Vertex loppu, List<Vertex> tulos) {
+
+        v.setColor(DiGraph.BLACK);
+        tulos.add(v);       // solmu spekulatiivisesti listaan
+        if (v == loppu) // maali lÃ¶ytyi
+            return true;
+        for (Vertex w : v.neighbors()) {
+            if (w.getColor() == DiGraph.WHITE)
+                if (jokuPolku_r(w, loppu, tulos))   // jos maali lÃ¶ytyi
+                    return true;                // poistutaan muutamatta listaa
+
+        }
+
+        tulos.remove(tulos.size()-1);   // jollei polkua lÃ¶ytynyt, niin poistetaan
+        return  false;
+    }
+
+
+    /**
+     * Joku polku solmusta alku solmuun loppu.
+     * Versio joka rakentaa polkua vasta palatessa kun maali lÃ¶ytyi
+     * @param G tarkasteltava verkko (tarvitaan pohjavÃ¤ritykseen)
+     * @param alku polun alkusolmu
+     * @param loppu polun loppusolmu
+     * @return lista polun solmuista, tai tyhjÃ¤ lista jollei polkua ole olemassa
+     */
+    static List<Vertex> jokuPolku2(DiGraph G, Vertex alku, Vertex loppu) {
+
+        GraphMaker.varita(G, DiGraph.WHITE);
+        List<Vertex> tulos = new LinkedList<>();
+
+        jokuPolku_r(alku, loppu, tulos);
+        return tulos;
+
+    }
+
+    /**
+     * Rekursiivinen osa polun hakua, rakentaa polun solmusta v solmuun loppu.
+     * @param v solmu jossa ollaan menossa
+     * @param loppu tavoiteltava maalisolmu
+     * @param tulos lista johon polku kerÃ¤tÃ¤Ã¤n
+     * @return true jos maali lÃ¶ytyi tÃ¤stÃ¤ tai syvemmÃ¤ltÃ¤, muuten false
+     */
+    static boolean jokuPolku2_r(Vertex v, Vertex loppu, List<Vertex> tulos) {
+
+        v.setColor(DiGraph.BLACK);
+        if (v == loppu) {   // maali lÃ¶ydetty
+            tulos.add(0, v); // kasataan listaa
+            return true;
+        }
+        for (Vertex w : v.neighbors()) {
+            if (w.getColor() == DiGraph.WHITE)
+                if (jokuPolku_r(w, loppu, tulos)) { // rekursio lÃ¶ysi maalisolmun
+                    tulos.add(0, v);    // solmu v lisÃ¤Ã¤ listan alkuun
+                    return true;
+                }
+
+        }
+        return  false;
     }
 
 
@@ -115,11 +155,6 @@ public class TRAII_22s_t11_12_pohja {
             if (v.getColor() == DiGraph.WHITE)
                 dfsRekursio(v);
     }
-
-
-
-    // esimerkkejÃ¤
-
 
     /**
      * Syvyyssuuntainen lÃ¤pikÃ¤ynti solmusta node alkaen
@@ -149,4 +184,3 @@ public class TRAII_22s_t11_12_pohja {
 
 
 }
-
