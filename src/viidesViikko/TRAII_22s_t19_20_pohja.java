@@ -5,9 +5,7 @@ import fi.uef.cs.tra.Edge;
 import fi.uef.cs.tra.Graph;
 import fi.uef.cs.tra.Vertex;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 
 public class TRAII_22s_t19_20_pohja {
@@ -89,11 +87,37 @@ public class TRAII_22s_t19_20_pohja {
      * Jos verkko on jo yhtenÃ¤inen, ei tarvitse tehdÃ¤ mitÃ¤Ã¤n.
      * @param G syÃ¶teverkko
      */
+
+
+
+
+    static LinkedList<Vertex> komponentti = new LinkedList<Vertex>();
+    static LinkedList<LinkedList> komponentit = new LinkedList<>();
+
+
     static void taydennaYhtenaiseksi(Graph G) {
-
-        // TODO
-
-    }   // taydennaYhtenaiseksi()
+        for (Vertex v : G.vertices()){
+            if(v.getColor() != Graph.GRAY){
+                dfsColor(v, Graph.GRAY);
+            }
+            LinkedList<Vertex> lisattavaK = new LinkedList<>(komponentti);
+            komponentit.add(lisattavaK);
+            komponentti.clear();
+        }
+        int i = komponentit.size();
+        int index = 0;
+        for(int j = 1; j<i; j++){
+            if(komponentit.get(j).size()==0){
+                komponentit.get(j).remove();
+            }
+            if(komponentit.get(j).size()>0){
+                Vertex w = (Vertex) komponentit.get(index).get(0);
+                Vertex v = (Vertex) komponentit.get(j).get(0);
+                index++;
+                v.addEdge(w);
+            }
+        }
+    }
 
 
 
@@ -106,11 +130,22 @@ public class TRAII_22s_t19_20_pohja {
      */
     static void dfsColor(Vertex v, int color) {
         v.setColor(color);
-
-        for (Vertex w : v.neighbors())
-            if (w.getColor() != color)
+        komponentti.add(v);
+        for (Vertex w : v.neighbors()) {
+            if (w.getColor() != color) {
                 dfsColor(w, color);
+            }
+        }
     }
+
+
+
+
+
+
+
+
+
 
     /**
      * VÃ¤ritÃ¤ verkon kaikki solmut annetun vÃ¤risiksi.
@@ -129,9 +164,7 @@ public class TRAII_22s_t19_20_pohja {
      * @param G syÃ¶teverkko
      */
     static void taydenna2yhtenaiseksi(Graph G) {
-
         // TODO
-
     }
 
     /**
